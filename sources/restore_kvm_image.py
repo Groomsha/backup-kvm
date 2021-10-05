@@ -13,7 +13,7 @@ import os as terminal_os
 import subprocess as shell
 
 
-class RestoreKVMinIMG():
+class RestoreKVMinIMG:
     def __init__(self, name_obj, dir_logs, backup_folder) -> None:
         self.name_obj = name_obj
         self.dir_logs = dir_logs
@@ -50,10 +50,11 @@ class RestoreKVMinIMG():
                 print(f"{time_message} {message}")
                 log.write(f"\n{time_message} {message}")
     
-    def performance_shell(self, command, wait_shell = True):
+    def performance_shell(self, command, wait_shell=True):
         shell_os = shell.Popen(command, stdout=shell.PIPE, stderr=shell.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
 
-        if wait_shell: shell_os.wait()
+        if wait_shell:
+            shell_os.wait()
         
         output, errors = shell_os.communicate()
         if len(str(output)) != 0:
@@ -61,7 +62,7 @@ class RestoreKVMinIMG():
         if len(str(errors)) != 0:
             self.logs_creation(str(errors.strip()).splitlines())
 
-    def virsh_command(self, command, sources = None):
+    def virsh_command(self, command, sources=None):
         """ Уничтажает виртуальную машину (VM), восстановление 
             из Backup и запускает виртуальную машину (VM)
         """

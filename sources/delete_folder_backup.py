@@ -15,7 +15,7 @@ import subprocess
 from datetime import datetime
 
 
-class DeleteFolderBackup():
+class DeleteFolderBackup:
     def __init__(self, name_obj, dir_logs, dir_backup, number_archives) -> None:
         self.name_obj = name_obj
         self.dir_logs = dir_logs
@@ -41,10 +41,12 @@ class DeleteFolderBackup():
             for message in messages:
                 log.write(f"\n{time_message} {message}")
     
-    def performance_shell(self, command, wait_shell = True):
+    def performance_shell(self, command, wait_shell=True):
         shell_os = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
 
-        if wait_shell: shell_os.wait()
+        if wait_shell:
+            shell_os.wait()
+
         output, errors = shell_os.communicate()
 
         if shell_os.returncode != 0:

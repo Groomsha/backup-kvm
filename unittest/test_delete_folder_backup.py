@@ -11,7 +11,7 @@ https://www.linkedin.com/in/ihor-cheberiak/
 import unittest
 import unittest.mock
 
-from backup.sources.delete_folder_backup import DeleteFolderBackup
+from sources.delete_folder_backup import DeleteFolderBackup
 
 
 class Test_DeleteFolderBackup(unittest.TestCase):

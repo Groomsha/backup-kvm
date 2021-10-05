@@ -11,7 +11,7 @@ https://www.linkedin.com/in/ihor-cheberiak/
 import unittest
 import time
 
-from backup.sources.backup_kvm_lvm import BackupKVMinLVM
+from sources.backup_kvm_lvm import BackupKVMinLVM
 
 
 class Test_BackupKVMinLVM(unittest.TestCase):

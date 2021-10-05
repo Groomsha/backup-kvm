@@ -9,8 +9,8 @@ https://www.linkedin.com/in/ihor-cheberiak/
 """
 
 
-class BackupDirSSH():
-    def __init__(self) -> None:
+class BackupDirSSH:
+    def __init__(self):
         pass
 
     def main_setup(self):

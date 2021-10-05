@@ -9,12 +9,13 @@ Ihor Cheberiak (c) 2021
 https://www.linkedin.com/in/ihor-cheberiak/
 """
 
+import sys
 import time as time_os
 import os as terminal_os
 import subprocess as shell
 
 
-class BackupKVMinLVM():
+class BackupKVMinLVM:
     def __init__(self, name_obj, dir_obj, dir_backup, dir_logs, size_snap, compression):
         self.name_obj = name_obj
         self.dir_obj = dir_obj
@@ -22,6 +23,9 @@ class BackupKVMinLVM():
         self.dir_logs = dir_logs
         self.size_snap = int(size_snap)
         self.compression = str(compression)
+
+        self.folder_backup = None
+        self.touch_folder = None
 
     def main_setup(self):
         self.concatenation_folder()
@@ -52,10 +56,11 @@ class BackupKVMinLVM():
             for message in messages:
                 log.write(f"\n{time_message} {message}")
     
-    def performance_shell(self, command, wait_shell = True):
+    def performance_shell(self, command, wait_shell=True):
         shell_os = shell.Popen(command, stdout=shell.PIPE, stderr=shell.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
 
-        if wait_shell: shell_os.wait()
+        if wait_shell:
+            shell_os.wait()
         
         output, errors = shell_os.communicate()
         if len(str(output)) != 0:
@@ -98,8 +103,8 @@ class BackupKVMinLVM():
             self.logs_creation(["Error Process Restore VM: The VM is not turned off, removing the folder with oriental information!"])
             self.performance_shell(f"rm -r {self.dir_backup}{self.folder_backup}/")
             self.lvm_command("remove")
-            terminal_os._exit(1)
-    
+            self.close_backup()
+
     def archive_creation(self):
         """ compression: Степень сжатия .gz файла от 1 до 9. Чем выше степень,
             тем больше нужно мощностей процессора и времени на создание архива.
@@ -111,3 +116,6 @@ class BackupKVMinLVM():
         self.performance_shell(f"sudo lvdisplay {self.dir_obj}_snap")
 
         self.lvm_command("remove")
+
+    def close_backup(self):
+        sys.exit()

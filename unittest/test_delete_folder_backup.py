@@ -8,7 +8,6 @@ Ihor Cheberiak (c) 2021
 https://www.linkedin.com/in/ihor-cheberiak/
 """
 
-import unittest
 import unittest.mock
 
 from sources.delete_folder_backup import DeleteFolderBackup

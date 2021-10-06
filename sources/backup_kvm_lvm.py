@@ -1,3 +1,22 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
 """
 Project Name: 'backup-kvm'
 Version: 1.3
@@ -16,7 +35,7 @@ import subprocess as shell
 
 
 class BackupKVMinLVM:
-    def __init__(self, name_obj, dir_obj, dir_backup, dir_logs, size_snap, compression):
+    def __init__(self, name_obj: str, dir_obj: str, dir_backup: str, dir_logs: str, size_snap: int, compression: int):
         self.name_obj = name_obj
         self.dir_obj = dir_obj
         self.dir_backup = dir_backup
@@ -45,7 +64,7 @@ class BackupKVMinLVM:
         self.folder_backup = f"{self.name_obj}_{time_backup}"
         self.touch_folder = f"{self.dir_backup}{self.folder_backup}/{self.name_obj}"
     
-    def logs_creation(self, messages):
+    def logs_creation(self, messages: list):
         if terminal_os.path.isfile(f"{self.dir_logs}{self.name_obj}.log"):
             access_type = "a"
         else:
@@ -80,7 +99,7 @@ class BackupKVMinLVM:
         
         self.logs_creation([f"Process Virsh Create: {self.name_obj}.vmstate --running and creation of auxiliary files VM!"])
     
-    def lvm_command(self, command):
+    def lvm_command(self, command: str):
         """ command: (create) Создать LVM_Snap. (remove) Удалить LVM_Snap.
             ratio: Размер таблицы(буфера), на каждые 8Gb LVM c VM нужно 256M.
             ratio=2 это 512M Snapshot для VM размером меньше чем 16Gb

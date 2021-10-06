@@ -1,10 +1,9 @@
-# backup-kvm
+# Backup VM for KVM
+
+Script for backup and recovery of virtual machines running 
+on a KVM hypervisor. version Python 3.6.*
 
 ########################################################
-
-Automatic launch of Backup via Cron (command: crontab -e) version Python 3.6.*
-
-30 23 * * FRI    /root/backup/mainapp.py -setings_name_json=/root/backup/setings.json
 
 setings.json:
 
@@ -17,3 +16,7 @@ setings.json:
 "number_archives": do not overwrite the latest 1 - 9 archives
 
 ########################################################
+
+* Automatic launch of Backup via Cron (command: crontab -e)
+
+30 23 * * FRI    /root/backup/mainapp.py -setings_name_json=/root/backup/setings.json

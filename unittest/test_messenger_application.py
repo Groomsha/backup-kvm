@@ -21,7 +21,7 @@
 Project Name: 'backup-kvm'
 Version: 1.0
 
-Description: Unit Test: backup_kvm_lvm.py
+Description: Unit Test: messenger_application.py
 
 Ihor Cheberiak (c) 2021
 https://www.linkedin.com/in/ihor-cheberiak/
@@ -31,11 +31,14 @@ import unittest
 import sources as service
 
 
-class Test_DeleteFolderBackup(unittest.TestCase):
+class Test_MessengerApplication(unittest.TestCase):
     def setUp(self) -> None:
-        self.delete_folder = service.DeleteFolderBackup("srv4prod-vm", "/unittest/.test_folder_cash/", "/unittest/.test_folder_cash/", 3)
+        self.messenger = service.MessengerApplication("/unittest/.test_folder_cash/", "srv4prod-vm")
+        self.message_log = ["Process Virsh Create: srv4prod-vm.vmstate --running and creation of auxiliary files VM!"]
+
+    def test_logs_creation(self):
+        pass
 
 
 if __name__ == '__main__':
     unittest.main()
-    

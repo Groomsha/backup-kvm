@@ -19,7 +19,7 @@
 
 """
 Project Name: 'backup-kvm'
-Version: 1.3
+Version: 1.4
 
 Description: Скрипт позволяет делать автоматические бекапы виртуальных машин 
 используя его в CRON для гипервизора KVM размещенных на блочном устройстве LVM.
@@ -33,47 +33,38 @@ import time as time_os
 import os as terminal_os
 import subprocess as shell
 
+from ..service.messenger_application import MessengerApplication
+
 
 class BackupKVMinLVM:
     def __init__(self, name_obj: str, dir_obj: str, dir_backup: str, dir_logs: str, size_snap: int, compression: int):
         self.name_obj = name_obj
         self.dir_obj = dir_obj
         self.dir_backup = dir_backup
-        self.dir_logs = dir_logs
         self.size_snap = int(size_snap)
         self.compression = str(compression)
 
         self.folder_backup = None
         self.touch_folder = None
+        self.log_recording = MessengerApplication(dir_logs, name_obj)
 
     def main_setup(self):
         self.concatenation_folder()
 
         self.performance_shell(f"mkdir -p {self.dir_backup}{self.folder_backup}/")
-        self.logs_creation([f"Start Process Backup Virtual Machine: {self.name_obj} {self.dir_backup}{self.folder_backup}"])
+        self.log_recording.logs_creation([f"Start Process Backup Virtual Machine: {self.name_obj} {self.dir_backup}{self.folder_backup}"])
         
         self.virsh_command()
         self.lvm_command("create")
         self.virsh_restore()
 
-        self.logs_creation(["#"*120])
+        self.log_recording.logs_creation(["#"*120])
     
     def concatenation_folder(self):
         time_backup = time_os.strftime("%d.%m.%Y")
 
         self.folder_backup = f"{self.name_obj}_{time_backup}"
         self.touch_folder = f"{self.dir_backup}{self.folder_backup}/{self.name_obj}"
-    
-    def logs_creation(self, messages: list):
-        if terminal_os.path.isfile(f"{self.dir_logs}{self.name_obj}.log"):
-            access_type = "a"
-        else:
-            access_type = "w"
-        
-        time_message = time_os.ctime()
-        with open(f"{self.dir_logs}{self.name_obj}.log", access_type) as log:
-            for message in messages:
-                log.write(f"\n{time_message} {message}")
     
     def performance_shell(self, command, wait_shell=True):
         shell_os = shell.Popen(command, stdout=shell.PIPE, stderr=shell.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
@@ -83,9 +74,9 @@ class BackupKVMinLVM:
         
         output, errors = shell_os.communicate()
         if len(str(output)) != 0:
-            self.logs_creation(str(output.strip()).splitlines())
+            self.log_recording.logs_creation(str(output.strip()).splitlines())
         if len(str(errors)) != 0:
-            self.logs_creation(str(errors.strip()).splitlines())
+            self.log_recording.logs_creation(str(errors.strip()).splitlines())
     
     def virsh_command(self):
         """ Остонавливает виртуальную машину (VM) и собирает информацию
@@ -97,7 +88,7 @@ class BackupKVMinLVM:
             self.performance_shell(f"virsh dumpxml {self.name_obj} > {self.touch_folder}.xml")
             self.performance_shell(f"virsh domblkinfo {self.name_obj} {self.dir_obj} > {self.touch_folder}-raw_info && virsh vol-pool {self.dir_obj} >> {self.touch_folder}-raw_info && echo {self.dir_obj} >> {self.touch_folder}-raw_info")
         
-        self.logs_creation([f"Process Virsh Create: {self.name_obj}.vmstate --running and creation of auxiliary files VM!"])
+        self.log_recording.logs_creation([f"Process Virsh Create: {self.name_obj}.vmstate --running and creation of auxiliary files VM!"])
     
     def lvm_command(self, command: str):
         """ command: (create) Создать LVM_Snap. (remove) Удалить LVM_Snap.
@@ -107,19 +98,19 @@ class BackupKVMinLVM:
         if command == "create":
             ratio = str(self.size_snap*256)
             self.performance_shell(f"sudo lvcreate -s -n {self.dir_obj}_snap -L{ratio}M {self.dir_obj}")
-            self.logs_creation([f"LVM Snapshot Create: {self.dir_obj}_snap Size: {ratio}M Target: {self.dir_obj}"])
+            self.log_recording.logs_creation([f"LVM Snapshot Create: {self.dir_obj}_snap Size: {ratio}M Target: {self.dir_obj}"])
         elif command == "remove":
             self.performance_shell(f"sudo lvremove -f {self.dir_obj}_snap")
-            self.logs_creation([f"LVM Snapshot Remove {self.dir_obj}_snap"])
+            self.log_recording.logs_creation([f"LVM Snapshot Remove {self.dir_obj}_snap"])
     
     def virsh_restore(self):
         """ Запускает виртуальную машину (VM) из сохраненного ранее состояния """
         if terminal_os.popen(f"virsh domstate {self.name_obj}").read().split() != ["running"]:
-            self.logs_creation([f"Start Process Restore Virtual Machine: {self.name_obj}.vmstate --running"])
+            self.log_recording.logs_creation([f"Start Process Restore Virtual Machine: {self.name_obj}.vmstate --running"])
             self.performance_shell(f"virsh restore {self.touch_folder}.vmstate")
             self.archive_creation()
         else:
-            self.logs_creation(["Error Process Restore VM: The VM is not turned off, removing the folder with oriental information!"])
+            self.log_recording.logs_creation(["Error Process Restore VM: The VM is not turned off, removing the folder with oriental information!"])
             self.performance_shell(f"rm -r {self.dir_backup}{self.folder_backup}/")
             self.lvm_command("remove")
             self.close_backup()
@@ -128,10 +119,10 @@ class BackupKVMinLVM:
         """ compression: Степень сжатия .gz файла от 1 до 9. Чем выше степень,
             тем больше нужно мощностей процессора и времени на создание архива.
         """
-        self.logs_creation([f"Process GZIP LVM Snapshot: For disk recovery Virtual Machine {self.name_obj}"])
+        self.log_recording.logs_creation([f"Process GZIP LVM Snapshot: For disk recovery Virtual Machine {self.name_obj}"])
         self.performance_shell(f"dd if={self.dir_obj}_snap | gzip -ck -{self.compression} > {self.touch_folder}.gz")
 
-        self.logs_creation(["Allocated to LVM Snapshot: Allocated should be < 100% for performance Snapshot!"])
+        self.log_recording.logs_creation(["Allocated to LVM Snapshot: Allocated should be < 100% for performance Snapshot!"])
         self.performance_shell(f"sudo lvdisplay {self.dir_obj}_snap")
 
         self.lvm_command("remove")

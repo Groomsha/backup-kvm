@@ -20,7 +20,7 @@
 
 """
 Project Name: 'backup-kvm'
-Version: 1.1
+Version: 1.2
 
 Description: Backup and restore script KVM VM
 
@@ -32,13 +32,7 @@ import sys
 import json
 import argparse
 
-from sources.backup_dir_ssh import BackupDirSSH
-from sources.backup_kvm_lvm import BackupKVMinLVM
-from sources.backup_kvm_image import BackupKVMinIMG
-from sources.restore_kvm_lvm import RestoreKVMinLVM
-from sources.restore_kvm_image import RestoreKVMinIMG
-from sources.delete_folder_backup import DeleteFolderBackup
-
+import sources
 
 help_parser = argparse.ArgumentParser(description="Backup and Restore Virtual Machines and Folders")
 help_parser.add_argument("-settings_name_json", type=str, default="settings.json", help="Example: settings.json")
@@ -49,25 +43,25 @@ settings_json = args_parser.setings_name_json
 
 def init_backup(args: list):
     if args[0] == 1:
-        delete_backup = DeleteFolderBackup(args[1], args[2], args[4], args[8])
+        delete_backup = sources.DeleteFolderBackup(args[1], args[2], args[4], args[8])
         delete_backup.main_setup()
 
-        backup_vm_lvm = BackupKVMinLVM(args[1], args[3], args[4], args[2], args[7], args[6])
+        backup_vm_lvm = sources.BackupKVMinLVM(args[1], args[3], args[4], args[2], args[7], args[6])
         backup_vm_lvm.main_setup()
     elif args[0] == 2:
-        delete_backup = DeleteFolderBackup(args[1], args[2], args[4], args[8])
+        delete_backup = sources.DeleteFolderBackup(args[1], args[2], args[4], args[8])
         delete_backup.main_setup()
 
-        backup_vm_img = BackupKVMinIMG(args[1], args[3], args[4], args[2], args[6])
+        backup_vm_img = sources.BackupKVMinIMG(args[1], args[3], args[4], args[2], args[6])
         backup_vm_img.main_setup()
     elif args[0] == 3:
-        backup_vm_lvm = RestoreKVMinLVM(args[1], args[2], args[5])
+        backup_vm_lvm = sources.RestoreKVMinLVM(args[1], args[2], args[5])
         backup_vm_lvm.main_setup()
     elif args[0] == 4:
-        backup_vm_img = RestoreKVMinIMG(args[1], args[2], args[5])
+        backup_vm_img = sources.RestoreKVMinIMG(args[1], args[2], args[5])
         backup_vm_img.main_setup()
     elif args[0] == 5:
-        backup_dir_ssh = BackupDirSSH()
+        backup_dir_ssh = sources.BackupDirSSH()
         backup_dir_ssh.main_setup()
 
 

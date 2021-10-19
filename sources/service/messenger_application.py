@@ -21,21 +21,28 @@
 Project Name: 'backup-kvm'
 Version: 1.0
 
-Description: Unit Test: backup_kvm_lvm.py
+Description: Backup and restore script KVM VM
 
 Ihor Cheberiak (c) 2021
 https://www.linkedin.com/in/ihor-cheberiak/
 """
 
-import unittest
-import sources as service
+import os
+import time
 
 
-class Test_DeleteFolderBackup(unittest.TestCase):
-    def setUp(self) -> None:
-        self.delete_folder = service.DeleteFolderBackup("srv4prod-vm", "/unittest/.test_folder_cash/", "/unittest/.test_folder_cash/", 3)
+class MessengerApplication:
+	def __init__(self, dir_logs, name_obj):
+		self.directory = dir_logs
+		self.object = name_obj
 
+	def logs_creation(self, messages: list):
+		if os.path.isfile(f"{self.directory}{self.object}.log"):
+			access_type = "a"
+		else:
+			access_type = "w"
 
-if __name__ == '__main__':
-    unittest.main()
-    
+		time_message = time.ctime()
+		with open(f"{self.directory}{self.object}.log", access_type) as log:
+			for message in messages:
+				log.write(f"\n{time_message} {message}")

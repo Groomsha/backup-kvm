@@ -21,7 +21,7 @@
 Project Name: 'backup-kvm'
 Version: 1.0
 
-Description: Unit Test: backup_kvm_lvm.py
+Description: Unit Test: test_delete_folder_backup.py
 
 Ihor Cheberiak (c) 2021
 https://www.linkedin.com/in/ihor-cheberiak/
@@ -31,7 +31,7 @@ import unittest
 import sources as service
 
 
-class Test_DeleteFolderBackup(unittest.TestCase):
+class TestDeleteFolderBackup(unittest.TestCase):
     def setUp(self) -> None:
         self.delete_folder = service.DeleteFolderBackup("srv4prod-vm", "/unittest/.test_folder_cash/", "/unittest/.test_folder_cash/", 3)
 

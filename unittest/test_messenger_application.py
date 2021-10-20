@@ -31,7 +31,7 @@ import unittest
 import sources as service
 
 
-class Test_MessengerApplication(unittest.TestCase):
+class TestMessengerApplication(unittest.TestCase):
     def setUp(self) -> None:
         self.messenger = service.MessengerApplication("/unittest/.test_folder_cash/", "srv4prod-vm")
         self.message_log = ["Process Virsh Create: srv4prod-vm.vmstate --running and creation of auxiliary files VM!"]

@@ -19,7 +19,7 @@
 
 """
 Project Name: 'backup-kvm'
-Version: 1.1
+Version: 1.2
 
 Description: Backup and restore script KVM VM
 
@@ -27,16 +27,17 @@ Ihor Cheberiak (c) 2021
 https://www.linkedin.com/in/ihor-cheberiak/
 """
 
-import time as time_os
-import os as terminal_os
 import subprocess as shell
+
+import sources as service
 
 
 class RestoreKVMinIMG:
     def __init__(self, name_obj: str, dir_logs: str, backup_folder: str) -> None:
         self.name_obj = name_obj
-        self.dir_logs = dir_logs
         self.backup_folder = backup_folder
+        self.log_recording = service.MessengerApplication(dir_logs, name_obj)
+
         self.dev_pool = ""
         self.dev_img = ""
 
@@ -48,7 +49,7 @@ class RestoreKVMinIMG:
 
         *rest, self.dev_pool, self.dev_img = temp_str.split()
     
-        self.logs_creation([f"Start Process Restoring Virtual Machine: {self.name_obj} {self.backup_folder}"])
+        self.log_recording.logs_creation([f"Start Process Restoring Virtual Machine: {self.name_obj} {self.backup_folder}"])
 
         self.virsh_command("destroy")
         self.virsh_command("delete", [self.dev_pool, self.dev_img])
@@ -56,18 +57,6 @@ class RestoreKVMinIMG:
         self.archive_creation()
 
         print("Restore Сompleted!")
-    
-    def logs_creation(self, messages: list):
-        if terminal_os.path.isfile(f"{self.dir_logs}{self.name_obj}.log"):
-            access_type = "a"
-        else:
-            access_type = "w"
-        
-        time_message = time_os.ctime()
-        with open(f"{self.dir_logs}{self.name_obj}.log", access_type) as log:
-            for message in messages:
-                print(f"{time_message} {message}")
-                log.write(f"\n{time_message} {message}")
     
     def performance_shell(self, command: str, wait_shell=True):
         shell_os = shell.Popen(command, stdout=shell.PIPE, stderr=shell.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
@@ -77,9 +66,9 @@ class RestoreKVMinIMG:
         
         output, errors = shell_os.communicate()
         if len(str(output)) != 0:
-            self.logs_creation(str(output.strip()).splitlines())
+            self.log_recording.logs_creation(str(output.strip()).splitlines())
         if len(str(errors)) != 0:
-            self.logs_creation(str(errors.strip()).splitlines())
+            self.log_recording.logs_creation(str(errors.strip()).splitlines())
 
     def virsh_command(self, command: str, sources=None):
         """ Уничтажает виртуальную машину (VM), восстановление 
@@ -96,6 +85,6 @@ class RestoreKVMinIMG:
 
     def archive_creation(self):
         dev_img_temp = self.dev_img[self.dev_img.find("."):]
-        self.logs_creation([f"Process GUNZIP Disk Image: For disk recovery VM: {self.name_obj}"])
+        self.log_recording.logs_creation([f"Process GUNZIP Disk Image: For disk recovery VM: {self.name_obj}"])
         self.performance_shell(f"gunzip -ck {self.backup_folder}{self.name_obj}{dev_img_temp}.gz > {self.dev_img}")
         self.virsh_command("restore")

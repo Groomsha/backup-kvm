@@ -19,7 +19,7 @@
 
 """
 Project Name: 'backup-kvm'
-Version: 1.4
+Version: 1.5
 
 Description: Скрипт позволяет делать автоматические бекапы виртуальных машин 
 используя его в CRON для гипервизора KVM размещенных на блочном устройстве LVM.
@@ -33,7 +33,7 @@ import time as time_os
 import os as terminal_os
 import subprocess as shell
 
-from ..service.messenger_application import MessengerApplication
+import sources as service
 
 
 class BackupKVMinLVM:
@@ -46,7 +46,7 @@ class BackupKVMinLVM:
 
         self.folder_backup = None
         self.touch_folder = None
-        self.log_recording = MessengerApplication(dir_logs, name_obj)
+        self.log_recording = service.MessengerApplication(dir_logs, name_obj)
 
     def main_setup(self):
         self.concatenation_folder()

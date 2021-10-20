@@ -19,7 +19,7 @@
 
 """
 Project Name: 'backup-kvm'
-Version: 1.1
+Version: 1.2
 
 Description: Backup and restore script KVM VM
 
@@ -31,14 +31,16 @@ import time as time_os
 import os as terminal_os
 import subprocess as shell
 
+import sources as service
+
 
 class BackupKVMinIMG:
     def __init__(self, name_obj: str, dir_obj: str, dir_backup: str, dir_logs: str, compression: int):
         self.name_obj = name_obj
         self.dir_obj = dir_obj
         self.dir_backup = dir_backup
-        self.dir_logs = dir_logs
         self.compression = str(compression)
+        self.log_recording = service.MessengerApplication(dir_logs, name_obj)
 
         self.folder_backup = None
         self.touch_folder = None
@@ -49,24 +51,13 @@ class BackupKVMinIMG:
         self.virsh_command()
         self.archive_creation()
 
-        self.logs_creation(["#"*120])
+        self.log_recording.logs_creation(["#"*120])
 
     def concatenation_folder(self):
         time_backup = time_os.strftime("%d.%m.%Y")
 
         self.folder_backup = f"{self.name_obj}_{time_backup}"
         self.touch_folder = f"{self.dir_backup}{self.folder_backup}/{self.name_obj}"
-
-    def logs_creation(self, messages: list):
-        if terminal_os.path.isfile(f"{self.dir_logs}{self.name_obj}.log"):
-            access_type = "a"
-        else:
-            access_type = "w"
-        
-        time_message = time_os.ctime()
-        with open(f"{self.dir_logs}{self.name_obj}.log", access_type) as log:
-            for message in messages:
-                log.write(f"\n{time_message} {message}")
 
     def performance_shell(self, command, wait_shell=True):
         shell_os = shell.Popen(command, stdout=shell.PIPE, stderr=shell.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
@@ -76,9 +67,9 @@ class BackupKVMinIMG:
         
         output, errors = shell_os.communicate()
         if len(str(output)) != 0:
-            self.logs_creation(str(output.strip()).splitlines())
+            self.log_recording.logs_creation(str(output.strip()).splitlines())
         if len(str(errors)) != 0:
-            self.logs_creation(str(errors.strip()).splitlines())
+            self.log_recording.logs_creation(str(errors.strip()).splitlines())
 
     def virsh_command(self, command=None):
         """ Остонавливает виртуальную машину (VM) и собирает информацию
@@ -91,17 +82,17 @@ class BackupKVMinIMG:
             self.performance_shell(f"virsh dumpxml {self.name_obj} > {self.touch_folder}.xml")
             self.performance_shell(f"virsh domblkinfo {self.name_obj} {self.dir_obj} > {self.touch_folder}-{3}_info && virsh vol-pool {self.dir_obj} >> {self.touch_folder}-{dir_img_temp}_info && echo {self.dir_obj} >> {self.touch_folder}-{dir_img_temp}_info")
         
-        self.logs_creation([f"Process Virsh: Shutdown VM and creation of auxiliary files {self.name_obj} VM!"])
+        self.log_recording.logs_creation([f"Process Virsh: Shutdown VM and creation of auxiliary files {self.name_obj} VM!"])
 
         if command == "start":
             self.performance_shell(f"virsh start {self.name_obj}")
-            self.logs_creation([f"Process Virsh: Start VM {self.name_obj} - Running"])
+            self.log_recording.logs_creation([f"Process Virsh: Start VM {self.name_obj} - Running"])
 
     def archive_creation(self):
         """ compression: Степень сжатия .gz файла от 1 до 9. Чем выше степень,
             тем больше нужно мощностей процессора и времени на создание архива.
         """
         dir_img = self.dir_obj[self.dir_obj.find("."):]
-        self.logs_creation([f"Process GZIP Disk Image: For disk recovery Virtual Machine {self.name_obj}"])
+        self.log_recording.logs_creation([f"Process GZIP Disk Image: For disk recovery Virtual Machine {self.name_obj}"])
         self.performance_shell(f"dd if={self.dir_obj} | gzip -kc -{self.compression} > {self.touch_folder}{dir_img}.gz")
         self.virsh_command("start")

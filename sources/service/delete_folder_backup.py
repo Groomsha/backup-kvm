@@ -19,7 +19,7 @@
 
 """
 Project Name: 'backup-kvm'
-Version: 1.0
+Version: 1.1
 
 Description: Backup and restore script KVM VM
 
@@ -27,38 +27,28 @@ Ihor Cheberiak (c) 2021
 https://www.linkedin.com/in/ihor-cheberiak/
 """
 
-import os
-import time
 import subprocess
+
+import sources as service
 
 from datetime import datetime
 
 
 class DeleteFolderBackup:
     def __init__(self, name_obj: str, dir_logs: str, dir_backup: str, number_archives: int) -> None:
+        self.shell_output = []
+
         self.name_obj = name_obj
-        self.dir_logs = dir_logs
         self.dir_backup = dir_backup
         self.number_archives = number_archives
-        self.shell_output = []
+        self.log_recording = service.MessengerApplication(dir_logs, "delete_backup")
     
     def main_setup(self):
         self.performance_shell(f"ls {self.dir_backup}")
 
         for rm in self.shell_output[self.number_archives:]:
             self.performance_shell(f"rm -r {self.dir_backup}{rm}")
-            self.logs_creation([f"rm -r {self.dir_backup}{rm}"])
-
-    def logs_creation(self, messages: list):
-        if os.path.isfile(f"{self.dir_logs}delete_backup.log"):
-            access_type = "a"
-        else:
-            access_type = "w"
-        
-        time_message = time.ctime()
-        with open(f"{self.dir_logs}delete_backup.log", access_type) as log:
-            for message in messages:
-                log.write(f"\n{time_message} {message}")
+            self.log_recording.logs_creation([f"rm -r {self.dir_backup}{rm}"])
     
     def performance_shell(self, command: str, wait_shell=True):
         shell_os = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
@@ -69,7 +59,7 @@ class DeleteFolderBackup:
         output, errors = shell_os.communicate()
 
         if shell_os.returncode != 0:
-            self.logs_creation(str(errors.strip()).splitlines())
+            self.log_recording.logs_creation(str(errors.strip()).splitlines())
         else:
             if command[:2] == "ls":
                 for data in str(output.strip()).splitlines():

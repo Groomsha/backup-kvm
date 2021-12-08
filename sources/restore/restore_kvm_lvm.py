@@ -35,16 +35,16 @@ import sources as service
 
 class RestoreKVMinLVM:
     def __init__(self, name_obj: str, dir_logs: str, backup_folder: str) -> None:
-        self.name_obj = name_obj
-        self.backup_folder = backup_folder
+        self.name_obj: str = name_obj
+        self.backup_folder: str = backup_folder
         self.log_recording = service.MessengerApplication(dir_logs, name_obj)
 
-        self.size_lvm_block = ""
-        self.dev_lvm_block = ""
+        self.size_lvm_block: str = ""
+        self.dev_lvm_block: str = ""
     
-    def main_setup(self):
+    def main_setup(self) -> None:
         with open(f"{self.backup_folder}{self.name_obj}-raw_info") as backup:
-            temp_str = ""
+            temp_str: str = ""
             for line in backup:
                 temp_str += line
 
@@ -59,7 +59,7 @@ class RestoreKVMinLVM:
 
         print("Restore Сompleted!")
     
-    def performance_shell(self, command: str, wait_shell=True):
+    def performance_shell(self, command: str, wait_shell: bool = True) -> None:
         shell_os = shell.Popen(command, stdout=shell.PIPE, stderr=shell.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
 
         if wait_shell:
@@ -71,7 +71,7 @@ class RestoreKVMinLVM:
         if len(str(errors)) != 0:
             self.log_recording.logs_creation(str(errors.strip()).splitlines())
     
-    def virsh_command(self, command: str):
+    def virsh_command(self, command: str) -> None:
         """ Уничтажает виртуальную машину (VM), восстановление 
             из Backup и запускает виртуальную машину (VM)
         """
@@ -82,13 +82,13 @@ class RestoreKVMinLVM:
         elif command == "restore":
             self.performance_shell(f"virsh restore {self.backup_folder}{self.name_obj}.vmstate")
     
-    def lvm_command(self, command: str):
+    def lvm_command(self, command: str) -> None:
         """ command: (create) Создать блочное устройство LVM. (remove) Удалить блочное устройство LVM.
             size: Размер блочного устройства для Virtual Machine в 'Байтах'. Из файла -raw_info. 
         """
 
-        lvm_size_str = str(self.size_lvm_block)
-        lvm_split_str = self.dev_lvm_block.split('/')[-2] 
+        lvm_size_str: str = str(self.size_lvm_block)
+        lvm_split_str: str = self.dev_lvm_block.split('/')[-2]
 
         if command == "create":
             self.performance_shell(f"sudo lvcreate -y -n {self.name_obj} -L{lvm_size_str}B {lvm_split_str}")
@@ -98,7 +98,7 @@ class RestoreKVMinLVM:
             self.performance_shell(f"sudo lvremove -f {self.dev_lvm_block}")
             self.log_recording.logs_creation([f"LVM Block Device Remove {self.dev_lvm_block}"])
     
-    def archive_creation(self):
+    def archive_creation(self) -> None:
         self.log_recording.logs_creation([f"Process GUNZIP LVM Block Device: For disk recovery VM: {self.name_obj}"])
         self.performance_shell(f"gunzip -ck {self.backup_folder}{self.name_obj}.gz > {self.dev_lvm_block}")
         self.virsh_command("restore")

@@ -29,8 +29,8 @@ https://www.linkedin.com/in/ihor-cheberiak/
 
 
 class BackupDirSSH:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def main_setup(self):
+    def main_setup(self) -> None:
         pass

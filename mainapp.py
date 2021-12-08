@@ -31,6 +31,7 @@ https://www.linkedin.com/in/ihor-cheberiak/
 import sys
 import json
 import argparse
+from typing import List, Dict
 
 import sources
 
@@ -41,7 +42,7 @@ args_parser = help_parser.parse_args()
 settings_json = args_parser.setings_name_json
 
 
-def init_backup(args: list):
+def init_backup(args: List) -> None:
     if args[0] == 1:
         delete_backup = sources.DeleteFolderBackup(args[1], args[2], args[4], args[8])
         delete_backup.main_setup()
@@ -65,15 +66,15 @@ def init_backup(args: list):
         backup_dir_ssh.main_setup()
 
 
-def close_backup():
+def close_backup() -> None:
     sys.exit()
 
 
 if __name__ == '__main__':
     with open(f"{settings_json}", "r") as j:
-        settings_json = json.load(j)
+        settings_json: Dict = json.load(j)
 
-    settings = [parameter for _, parameter in settings_json.items()]
+    settings: List = [parameter for _, parameter in settings_json.items()]
 
     init_backup(settings)
     close_backup()

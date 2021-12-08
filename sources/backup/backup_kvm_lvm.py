@@ -37,18 +37,18 @@ import sources as service
 
 
 class BackupKVMinLVM:
-    def __init__(self, name_obj: str, dir_obj: str, dir_backup: str, dir_logs: str, size_snap: int, compression: int):
-        self.name_obj = name_obj
-        self.dir_obj = dir_obj
-        self.dir_backup = dir_backup
-        self.size_snap = int(size_snap)
-        self.compression = str(compression)
+    def __init__(self, name_obj: str, dir_obj: str, dir_backup: str, dir_logs: str, size_snap: int, compression: int) -> None:
+        self.name_obj: str = name_obj
+        self.dir_obj: str = dir_obj
+        self.dir_backup: str = dir_backup
+        self.size_snap: int = int(size_snap)
+        self.compression: str = str(compression)
 
-        self.folder_backup = None
-        self.touch_folder = None
+        self.folder_backup: str = ""
+        self.touch_folder: str = ""
         self.log_recording = service.MessengerApplication(dir_logs, name_obj)
 
-    def main_setup(self):
+    def main_setup(self) -> None:
         self.concatenation_folder()
 
         self.performance_shell(f"mkdir -p {self.dir_backup}{self.folder_backup}/")
@@ -60,13 +60,13 @@ class BackupKVMinLVM:
 
         self.log_recording.logs_creation(["#"*120])
     
-    def concatenation_folder(self):
-        time_backup = time_os.strftime("%d.%m.%Y")
+    def concatenation_folder(self) -> None:
+        time_backup: time_os = time_os.strftime("%d.%m.%Y")
 
         self.folder_backup = f"{self.name_obj}_{time_backup}"
         self.touch_folder = f"{self.dir_backup}{self.folder_backup}/{self.name_obj}"
     
-    def performance_shell(self, command, wait_shell=True):
+    def performance_shell(self, command, wait_shell: bool = True) -> None:
         shell_os = shell.Popen(command, stdout=shell.PIPE, stderr=shell.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
 
         if wait_shell:
@@ -78,7 +78,7 @@ class BackupKVMinLVM:
         if len(str(errors)) != 0:
             self.log_recording.logs_creation(str(errors.strip()).splitlines())
     
-    def virsh_command(self):
+    def virsh_command(self) -> None:
         """ Остонавливает виртуальную машину (VM) и собирает информацию
             для ее восстановления из Backup по надобности в будущем.
         """
@@ -90,20 +90,21 @@ class BackupKVMinLVM:
         
         self.log_recording.logs_creation([f"Process Virsh Create: {self.name_obj}.vmstate --running and creation of auxiliary files VM!"])
     
-    def lvm_command(self, command: str):
+    def lvm_command(self, command: str) -> None:
         """ command: (create) Создать LVM_Snap. (remove) Удалить LVM_Snap.
             ratio: Размер таблицы(буфера), на каждые 8Gb LVM c VM нужно 256M.
             ratio=2 это 512M Snapshot для VM размером меньше чем 16Gb
         """
         if command == "create":
-            ratio = str(self.size_snap*256)
+            ratio: str = str(self.size_snap*256)
+
             self.performance_shell(f"sudo lvcreate -s -n {self.dir_obj}_snap -L{ratio}M {self.dir_obj}")
             self.log_recording.logs_creation([f"LVM Snapshot Create: {self.dir_obj}_snap Size: {ratio}M Target: {self.dir_obj}"])
         elif command == "remove":
             self.performance_shell(f"sudo lvremove -f {self.dir_obj}_snap")
             self.log_recording.logs_creation([f"LVM Snapshot Remove {self.dir_obj}_snap"])
     
-    def virsh_restore(self):
+    def virsh_restore(self) -> None:
         """ Запускает виртуальную машину (VM) из сохраненного ранее состояния """
         if terminal_os.popen(f"virsh domstate {self.name_obj}").read().split() != ["running"]:
             self.log_recording.logs_creation([f"Start Process Restore Virtual Machine: {self.name_obj}.vmstate --running"])
@@ -115,7 +116,7 @@ class BackupKVMinLVM:
             self.lvm_command("remove")
             self.close_backup()
 
-    def archive_creation(self):
+    def archive_creation(self) -> None:
         """ compression: Степень сжатия .gz файла от 1 до 9. Чем выше степень,
             тем больше нужно мощностей процессора и времени на создание архива.
         """
@@ -127,5 +128,5 @@ class BackupKVMinLVM:
 
         self.lvm_command("remove")
 
-    def close_backup(self):
+    def close_backup(self) -> None:
         sys.exit()

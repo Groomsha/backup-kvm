@@ -28,22 +28,23 @@ https://www.linkedin.com/in/ihor-cheberiak/
 """
 
 import subprocess as shell
+from typing import Optional
 
 import sources as service
 
 
 class RestoreKVMinIMG:
     def __init__(self, name_obj: str, dir_logs: str, backup_folder: str) -> None:
-        self.name_obj = name_obj
-        self.backup_folder = backup_folder
+        self.name_obj: str = name_obj
+        self.backup_folder: str = backup_folder
         self.log_recording = service.MessengerApplication(dir_logs, name_obj)
 
-        self.dev_pool = ""
-        self.dev_img = ""
+        self.dev_pool: str = ""
+        self.dev_img: str = ""
 
-    def main_setup(self):
+    def main_setup(self) -> None:
         with open(f"{self.backup_folder}{self.name_obj}-img_info") as backup:
-            temp_str = ""
+            temp_str: str = ""
             for line in backup:
                 temp_str += line
 
@@ -58,7 +59,7 @@ class RestoreKVMinIMG:
 
         print("Restore Сompleted!")
     
-    def performance_shell(self, command: str, wait_shell=True):
+    def performance_shell(self, command: str, wait_shell: bool = True) -> None:
         shell_os = shell.Popen(command, stdout=shell.PIPE, stderr=shell.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
 
         if wait_shell:
@@ -70,7 +71,7 @@ class RestoreKVMinIMG:
         if len(str(errors)) != 0:
             self.log_recording.logs_creation(str(errors.strip()).splitlines())
 
-    def virsh_command(self, command: str, sources=None):
+    def virsh_command(self, command: str, sources: Optional = None):
         """ Уничтажает виртуальную машину (VM), восстановление 
             из Backup и запускает виртуальную машину (VM)
         """
@@ -83,8 +84,9 @@ class RestoreKVMinIMG:
         elif command == "restore":
             self.performance_shell(f"virsh start {self.name_obj}")
 
-    def archive_creation(self):
-        dev_img_temp = self.dev_img[self.dev_img.find("."):]
+    def archive_creation(self) -> None:
+        dev_img_temp: str = self.dev_img[self.dev_img.find("."):]
+
         self.log_recording.logs_creation([f"Process GUNZIP Disk Image: For disk recovery VM: {self.name_obj}"])
         self.performance_shell(f"gunzip -ck {self.backup_folder}{self.name_obj}{dev_img_temp}.gz > {self.dev_img}")
         self.virsh_command("restore")

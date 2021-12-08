@@ -29,20 +29,21 @@ https://www.linkedin.com/in/ihor-cheberiak/
 
 import os
 import time
+from typing import List
 
 
 class MessengerApplication:
-	def __init__(self, dir_logs, name_obj):
-		self.directory = dir_logs
-		self.object = name_obj
+	def __init__(self, dir_logs: str, name_obj: str) -> None:
+		self.directory: str = dir_logs
+		self.object: str = name_obj
 
-	def logs_creation(self, messages: list):
+	def logs_creation(self, messages: List) -> None:
 		if os.path.isfile(f"{self.directory}{self.object}.log"):
 			access_type = "a"
 		else:
 			access_type = "w"
 
-		time_message = time.ctime()
+		time_message: time = time.ctime()
 		with open(f"{self.directory}{self.object}.log", access_type) as log:
 			for message in messages:
 				log.write(f"\n{time_message} {message}")

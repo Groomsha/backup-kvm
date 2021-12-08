@@ -28,29 +28,29 @@ https://www.linkedin.com/in/ihor-cheberiak/
 """
 
 import subprocess
+from typing import List
+from datetime import datetime
 
 import sources as service
-
-from datetime import datetime
 
 
 class DeleteFolderBackup:
     def __init__(self, name_obj: str, dir_logs: str, dir_backup: str, number_archives: int) -> None:
-        self.shell_output = []
+        self.shell_output: List = []
 
-        self.name_obj = name_obj
-        self.dir_backup = dir_backup
-        self.number_archives = number_archives
+        self.name_obj: str = name_obj
+        self.dir_backup: str = dir_backup
+        self.number_archives: int = number_archives
         self.log_recording = service.MessengerApplication(dir_logs, "delete_backup")
     
-    def main_setup(self):
+    def main_setup(self) -> None:
         self.performance_shell(f"ls {self.dir_backup}")
 
         for rm in self.shell_output[self.number_archives:]:
             self.performance_shell(f"rm -r {self.dir_backup}{rm}")
             self.log_recording.logs_creation([f"rm -r {self.dir_backup}{rm}"])
     
-    def performance_shell(self, command: str, wait_shell=True):
+    def performance_shell(self, command: str, wait_shell: bool = True) -> None:
         shell_os = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable="/bin/bash", universal_newlines=True)
 
         if wait_shell:
